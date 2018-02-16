@@ -1,0 +1,106 @@
+---
+title: "Re-working a Graph: Employed and Happy"
+output: html_notebook
+---
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+library(tidyverse)
+```
+
+
+Import the dataset
+```{r}
+employed_and_happy <- read_csv("employed_and_happy.csv")
+employed_and_happy
+```
+
+# How can we graph the data?
+```{r echo=TRUE}
+ggplot(employed_and_happy) +
+  geom_bar(aes(x = `Aspects of Job`, y = `Percent Satisfied`, fill = `Field of Study`), stat = "identity", position = "dodge") + 
+  coord_flip() +
+  guides(fill = guide_legend(reverse = TRUE))
+```
+
+
+```{r echo=TRUE}
+ggplot(employed_and_happy) +
+  geom_bar(aes(x = `Aspects of Job`, y = `Percent Satisfied`, fill = `Field of Study`), stat = "identity", position = "dodge") + 
+  coord_flip() +
+  guides(fill = guide_legend(reverse = TRUE)) +
+  scale_fill_manual(values = c("red", "grey10", "grey30", "grey50", "grey70", "red"))
+```
+
+# Manually reorder the "Field of Study"
+
+```{r echo=TRUE}
+employed_and_happy_b <- employed_and_happy %>% mutate(Degree = factor(`Field of Study`, levels = c("Business", "Education", "Engineering", "Health or Medical Sciences", "Humanities", "Arts")))
+
+employed_and_happy_b
+```
+
+```{r echo=TRUE}
+ggplot(employed_and_happy_b) +
+  geom_bar(aes(x = `Aspects of Job`, y = `Percent Satisfied`, fill = `Degree`), stat = "identity", position = "dodge") + 
+  coord_flip() +
+  guides(fill = guide_legend(reverse = TRUE)) +
+  scale_fill_manual(values = c("grey30", "grey40", "grey50", "grey60", "#a1d99b", "#31a354")) +
+  theme(legend.position = "bottom")
+```
+
+
+# Very close to what I want; however, I want to sort the data by highest value in Humanities 
+
+```{r echo=TRUE}
+employed_and_happy_c <- employed_and_happy_b %>% mutate(Aspects = factor(`Aspects of Job`, levels = c("Opportunities for Advancement", "Salary", "Benefits", "Job Security", "Job Location")))
+employed_and_happy_c
+
+ggplot(employed_and_happy_c) +
+  geom_bar(aes(x = `Aspects`, y = `Percent Satisfied`, fill = `Degree`), stat = "identity", position = "dodge") + 
+  coord_flip() +
+  guides(fill = guide_legend(reverse = TRUE)) +
+  scale_fill_manual(values = c("grey40", "grey50", "grey60", "grey70", "#a1d99b", "#31a354")) +
+  theme(legend.position = "bottom", legend.title = element_blank())
+```
+
+# Finally, I'm going to change the theme to remove the grey background
+
+```{r echo=TRUE}
+ggplot(employed_and_happy_c) +
+  geom_bar(aes(x = `Aspects`, y = `Percent Satisfied`, fill = `Degree`), stat = "identity", position = "dodge") + 
+  scale_y_continuous(limits = c(0,100)) +
+  coord_flip() +
+  guides(fill = guide_legend(reverse = TRUE)) +
+  scale_fill_manual(values = c("grey40", "grey50", "grey60", "grey70", "#a1d99b", "#31a354")) +
+  theme_bw() +
+  theme(legend.position = "bottom", legend.title = element_blank())
+```
+
+
+# I was curious to see what the graphic would look like if Degrees were placed on the y axis
+
+```{r echo=TRUE}
+ggplot(employed_and_happy_c) +
+  geom_bar(aes(x = `Degree`, y = `Percent Satisfied`, fill = `Aspects`), stat = "identity", position = "dodge") + 
+  coord_flip() +
+  guides(fill = guide_legend(reverse = TRUE)) +
+  theme_bw() + 
+  theme(legend.position = "bottom", legend.title = element_blank()) +
+  scale_fill_brewer(palette = "Blues") + 
+  annotate("rect", xmin = 4.5, xmax = 6.5, ymin = 0, ymax = 100, colour = "red",  fill = "NA", alpha = 0.2)
+```
+
+Using the **JavaScript** JS array at [colorbrewer2.org](http://colorbrewer2.org/#type=sequential&scheme=Greens&n=6)
+
+
+```{r echo=TRUE}
+ggplot(employed_and_happy_c) +
+  geom_bar(aes(x = `Degree`, y = `Percent Satisfied`, fill = `Aspects`), stat = "identity", position = "dodge") + 
+  coord_flip() +
+  guides(fill = guide_legend(reverse = TRUE)) +
+  theme_bw() + 
+  theme(legend.position = "bottom", legend.title = element_blank()) +
+  scale_fill_manual(values = c('#edf8e9','#c7e9c0','#a1d99b','#74c476','#31a354','#006d2c')) +
+  annotate("rect", xmin = 4.5, xmax = 6.5, ymin = 0, ymax = 100, colour = "red",  fill = "NA", alpha = 0.2)
+```
+
